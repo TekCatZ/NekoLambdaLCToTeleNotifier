@@ -15,16 +15,16 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
-
 @Service
 @AllArgsConstructor
 @Slf4j
 public class TelegramClientService implements ITelegramClientService {
-    private static final String url = "https://api.telegram.org/bot%s/sendMessage";
-    private static final String pattern = "yyyy/MM/dd";
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+    private static final String URL = "https://api.telegram.org/bot%s/sendMessage";
+    private static final String PATTERN = "yyyy/MM/dd";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(PATTERN);
     private static final String LEETCODE_URL = "https://leetcode.com%s";
-    private static final String token = System.getenv("TELEGRAM_BOT_TOKEN");
+    private static final String TELEGRAM_BOT_TOKEN = System.getenv("TELEGRAM_BOT_TOKEN");
+    public static final String TELEGRAM_CHAT_ID = System.getenv("TELEGRAM_CHAT_ID");
 
     private WebClient webClient;
 
@@ -34,7 +34,7 @@ public class TelegramClientService implements ITelegramClientService {
 
         webClient
                 .post()
-                .uri(url.formatted(token))
+                .uri(URL.formatted(TELEGRAM_BOT_TOKEN))
                 .bodyValue(body)
                 .exchangeToMono(res -> Mono.empty())
                 .block();
@@ -46,14 +46,14 @@ public class TelegramClientService implements ITelegramClientService {
         return SendMessage.builder()
                 .protectContent(true)
                 .parseMode("MarkdownV2")
-                .chatId("-1002029443608")
+                .chatId(TELEGRAM_CHAT_ID)
                 .text(text)
                 .build();
     }
 
     private String createMsg(Question data) {
         var today = ZonedDateTime.now(ZoneId.of("VST", ZoneId.SHORT_IDS));
-        var title = "*Daily Leetcode %s*".formatted(today.format(formatter));
+        var title = "*Daily Leetcode %s*".formatted(today.format(DATE_TIME_FORMATTER));
 
         var question = data.getQuestion();
         var url = "*Link:* [%s](%s)".formatted(question.getTitle(), LEETCODE_URL.formatted(data.getLink()));
